@@ -8,16 +8,18 @@ export class SubmissionsService {
   private userInputPath = './src/user-code/code.js';
   private userInputWrapperPath = './src/user-code/wrapper.js';
 
+  private tests = [{ inputs: ['1', '1'], output: '2'}];
+
   constructor(
     private readonly fsService: FsService,
     private readonly childProcessService: ChildProcessService,
     ) {}
 
   async sumbmitSolution(code: string, problemId: string) {
-    await this.fsService.writeToFile(this.userInputPath, code);
-    const wrapper = await this.fsService.readFromFile(this.userInputWrapperPath);
-    await this.fsService.appendFile(this.userInputPath, wrapper);
-    return await this.childProcessService.execFile(this.userInputPath);
+    await this.fsService.copyFile(this.userInputWrapperPath, this.userInputPath);
+    await this.fsService.appendFile(this.userInputPath, code);
+
+    return await this.childProcessService.execFile(this.userInputPath, this.tests);
 
     // return await this.fsService.readFromFile(this.tempFolderPath);
   }

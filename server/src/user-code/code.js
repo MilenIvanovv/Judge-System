@@ -1,15 +1,12 @@
-console.log('Hello World');
 
-console.log('hello again');
+const input = process.argv.slice(2);
 
-if(process.send) {
-  process.send('myMsg');
-}
+const gets = (() => {
+  let i = 0;
 
-process.on('message', () => {
-  console.log('a');
-});
+  return () => input[i++];
+})();
 
-process.on('error', function(e){	
-	console.log(e)
-   });
+const print = (x) => process.send(x);
+
+print(+gets() + +gets()); 

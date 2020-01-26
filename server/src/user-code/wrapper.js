@@ -1,15 +1,11 @@
 
+const input = process.argv.slice(2);
 
-console.log('hello again');
+const gets = (() => {
+  let i = 0;
 
-if (process.send) {
-  process.send('myMsg');
-}
+  return () => input[i++];
+})();
 
-process.on('message', () => {
-  console.log('a');
-});
+const print = (x) => process.send(x);
 
-process.on('error', (e) => {
-  console.log(e)
-});

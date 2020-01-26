@@ -37,4 +37,15 @@ export class FsService {
       });
     });
   }
+
+  async copyFile(path, destPath) {
+    await new Promise((res, rej) => {
+      fs.copyFile(path, destPath, (err) => {
+        if (err) {
+          throw err;
+        }
+        res();
+      });
+    });
+  }
 }
