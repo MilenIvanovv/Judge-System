@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Query } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 
-@Controller('submissions')
+@Controller('problems/:problemId/submissions')
 export class SubmissionsController {
 
   constructor(private readonly submitService: SubmissionsService) {}

@@ -14,6 +14,10 @@ export class ChildProcessService {
       console.log('message from child:', message);
       child.send('Hi');
     });
+
+    child.on('error', (e) => {
+      console.log(e);
+    });
   }
 
   async combineFiles(file1Path, file2Path, outputFilePath) {
