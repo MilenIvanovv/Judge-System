@@ -7,6 +7,12 @@ const gets = (() => {
   return () => input[i++];
 })();
 
-const print = (x) => process.send(x);
+const print = (x) => process.send({type: 'answer', data: x});
 
-print(+gets() + +gets()); 
+process.on('message', (msg) => {
+  if (msg === 'get_memory_usage') {
+    process.send({ type: 'memory_usage', data: process.memoryUsage()});
+  }
+});
+
+print(+gets() + +gets());
