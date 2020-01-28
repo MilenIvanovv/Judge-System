@@ -1,37 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import * as cp from 'child_process';
+import { SubmissionOutputDTO } from '../../submissions/models/submission-output.dto';
 
 @Injectable()
 export class ChildProcessService {
-  async execFile(pathToFile: string, tests: { inputs: string[], output: string }[]): Promise<any> {
+  async execFile(pathToFile: string, tests: { inputs: string[], output: string }[]): Promise<SubmissionOutputDTO | string | any> {
     const parameters = tests[0].inputs;
     const options = {
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
-      silent: true,
-      detached: true,
     };
 
     const startTime = new Date().getTime();
-    const child = cp.fork(pathToFile, parameters, options as any);
 
     return await new Promise((res, rej) => {
-      let answer;
-      let endTime;
 
-      child.on('message', (childRes) => {
+      const child = cp.execFile('node', [pathToFile, ...parameters], options as any, (error, stdout: string, stderr) => {
+        const endTime = new Date().getTime();
 
-        if (childRes.type === 'memory_usage') {
-          res({ answer, time: `${endTime - startTime} ms`, memory: childRes.data});
-        } else if (childRes.type === 'answer') {
-          endTime = new Date().getTime();
-          answer = childRes.data;
-          child.send('get_memory_usage');
+        if (error) {
+          res('error');
         }
+
+        const output = stdout.split('\n');
+        output.pop();
+        const memory = output.pop();
+
+        res({ answer: output, time: `${endTime - startTime} ms`, memory});
+
+        // console.log('error', error);
+        // console.log('stdout', stdout);
+        // console.log('stderr', stderr);
       });
 
-      child.stderr.on('data', (data) => {
-        res('error');
-      });
+      let isProcessRunning = true;
+      child.on('exit', () => isProcessRunning = false);
+
+      setTimeout(() => {
+        if (isProcessRunning) {
+          child.kill();
+        }
+      }, 5000);
     });
   }
 }
